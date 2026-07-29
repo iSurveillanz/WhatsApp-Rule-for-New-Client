@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iSurveillanz SOP Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #faf9f7;
+            --bg-secondary: #f0eeeb;
+            --fg: #1a1a1a;
+            --fg-muted: #6b6b6b;
+            --accent: #0d7377;
+            --accent-light: #14919b;
+            --accent-soft: rgba(13, 115, 119, 0.1);
+            --card-bg: #ffffff;
+            --card-border: #e5e3e0;
+            --card-shadow: rgba(0, 0, 0, 0.04);
+            --success: #059669;
+            --danger: #dc2626;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0f1419;
+            --bg-secondary: #1a2028;
+            --fg: #e8e6e3;
+            --fg-muted: #8b9098;
+            --accent: #14b8a6;
+            --accent-light: #2dd4bf;
+            --accent-soft: rgba(20, 184, 166, 0.12);
+            --card-bg: #1a2028;
+            --card-border: #2a323d;
+            --card-shadow: rgba(0, 0, 0, 0.3);
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            transition: background 0.4s ease, color 0.3s ease;
+            line-height: 1.6;
+        }
+
+        /* Background Pattern */
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                radial-gradient(circle at 1px 1px, var(--card-border) 1px, transparent 0);
+            background-size: 32px 32px;
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        [data-theme="dark"] .bg-pattern {
+            opacity: 0.3;
+        }
+
+        /* Ambient Glow */
+        .ambient-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-1 {
+            background: var(--accent);
+            top: -200px;
+            right: -200px;
+        }
+
+        .glow-2 {
+            background: #f59e0b;
+            bottom: -200px;
+            left: -200px;
+            opacity: 0.08;
+        }
+
+        /* Header */
+        .header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--card-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            width: 52px;
+            height: 28px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--card-border);
+            border-radius: 50px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent);
+        }
+
+        .theme-toggle-knob {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: var(--fg);
+            border-radius: 50%;
+            transition: transform 0.3s ease, background 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: var(--bg);
+        }
+
+        [data-theme="dark"] .theme-toggle-knob {
+            transform: translateX(24px);
+            background: var(--accent-light);
+        }
+
+        /* Search */
+        .search-input {
+            background: var(--bg-secondary);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 12px 16px 12px 44px;
+            font-size: 0.95rem;
+            color: var(--fg);
+            width: 100%;
+            max-width: 320px;
+            transition: all 0.25s ease;
+            font-family: inherit;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        .search-input::placeholder {
+            color: var(--fg-muted);
+        }
+
+        /* Rule Card */
+        .rule-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.35s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .rule-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .rule-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 8px 32px var(--card-shadow), 0 0 0 1px var(--accent-soft);
+            transform: translateY(-4px);
+        }
+
+        .rule-card.visible:hover {
+            transform: translateY(-4px);
+        }
+
+        .rule-number {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 3rem;
+            font-weight: 500;
+            color: var(--accent);
+            opacity: 0.2;
+            line-height: 1;
+            position: absolute;
+            top: 16px;
+            right: 20px;
+        }
+
+        .rule-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent-soft);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .rule-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--fg);
+            margin-bottom: 4px;
+        }
+
+        .rule-subtitle {
+            font-size: 0.85rem;
+            color: var(--fg-muted);
+            font-weight: 500;
+        }
+
+        .rule-message {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            color: var(--fg);
+            border: 1px solid transparent;
+            transition: border-color 0.3s ease;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .rule-card:hover .rule-message {
+            border-color: var(--card-border);
+        }
+
+        /* Copy Button */
+        .copy-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+            font-family: inherit;
+        }
+
+        .copy-btn:hover {
+            background: var(--accent-light);
+            transform: scale(1.02);
+        }
+
+        .copy-btn:active {
+            transform: scale(0.98);
+        }
+
+        .copy-btn.copied {
+            background: var(--success);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 14px 24px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 200;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px var(--card-shadow);
+            font-weight: 500;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            color: var(--success);
+            font-size: 1.1rem;
+        }
+
+        /* Filter Chips */
+        .filter-chip {
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            background: var(--bg-secondary);
+            border: 1px solid var(--card-border);
+            color: var(--fg-muted);
+            transition: all 0.25s ease;
+            font-family: inherit;
+        }
+
+        .filter-chip:hover {
+            border-color: var(--accent);
+            color: var(--fg);
+        }
+
+        .filter-chip.active {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--card-border);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--fg-muted);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .rule-message {
+                max-height: 250px;
+                font-size: 0.85rem;
+                padding: 16px;
+            }
+
+            .rule-number {
+                font-size: 2rem;
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            .rule-card {
+                opacity: 1;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <!-- Background -->
+    <div class="bg-pattern"></div>
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between gap-4 flex-wrap">
+                <!-- Logo -->
+                <div class="flex items-center gap-3">
+                    <div class="logo-icon">
+                        <i class="fa-solid fa-video"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg">iSurveillanz</h1>
+                        <p class="text-xs" style="color: var(--fg-muted);">SOP Dashboard</p>
+                    </div>
+                </div>
+
+                <!-- Search & Controls -->
+                <div class="flex items-center gap-4">
+                    <div class="relative hidden sm:block">
+                        <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2" style="color: var(--fg-muted);"></i>
+                        <input type="text" class="search-input" placeholder="Search rules..." id="search-input">
+                    </div>
+                    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+                        <div class="theme-toggle-knob">
+                            <i class="fa-solid fa-sun" id="theme-icon"></i>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Search -->
+            <div class="mt-4 sm:hidden">
+                <div class="relative">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2" style="color: var(--fg-muted);"></i>
+                    <input type="text" class="search-input w-full" placeholder="Search rules..." id="search-input-mobile">
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="mt-4 flex flex-wrap gap-2" id="filters">
+                <button class="filter-chip active" data-filter="all">All Rules</button>
+                <button class="filter-chip" data-filter="photo">Photo Required</button>
+                <button class="filter-chip" data-filter="text">Text Message</button>
+                <button class="filter-chip" data-filter="file">File Attachment</button>
+                <button class="filter-chip" data-filter="link">Analytics Link</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+        <!-- Stats Bar -->
+        <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+            <div>
+                <h2 class="text-xl font-semibold">Communication Rules</h2>
+                <p class="text-sm" style="color: var(--fg-muted);">Professional guidelines for client communications</p>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="text-center">
+                    <div class="text-2xl font-bold" style="color: var(--accent);" id="rule-count">6</div>
+                    <div class="text-xs" style="color: var(--fg-muted);">Total Rules</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold" style="color: var(--success);">1-10m</div>
+                    <div class="text-xs" style="color: var(--fg-muted);">Response Time</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rules Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="rules-grid"></div>
+
+        <!-- Empty State -->
+        <div class="empty-state hidden" id="empty-state">
+            <div class="empty-icon"><i class="fa-solid fa-search"></i></div>
+            <p class="font-medium">No rules found</p>
+            <p class="text-sm mt-1">Try adjusting your search or filter</p>
+        </div>
+
+    </main>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="fa-solid fa-circle-check toast-icon"></i>
+        <span id="toast-text">Copied!</span>
+    </div>
+
+    <script>
+               // 01 to 06 tap copy
+        function copyMessage(id) {
+            const rule = rules.find(r => r.id === id);
+            if (!rule) return;
+
+            const text = rule.message.trim();
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('Message copied!');
+                    flashButton(id);
+                }).catch(() => {
+                    fallbackCopy(text);
+                    showToast('Message copied!');
+                    flashButton(id);
+                });
+            } else {
+                fallbackCopy(text);
+                showToast('Message copied!');
+                flashButton(id);
+            }
+        }
+ 
+        // Rule data - initialized before any function calls
+        const rules = [
+            {
+                id: 1,
+                icon: 'fa-camera',
+                title: 'Camera Access Confirmation',
+                subtitle: 'Photo Required',
+                message: '(NVR/DVR) = __ accessed cameras.',
+                type: 'photo'
+            },
+            {
+                id: 2,
+                icon: 'fa-envelope',
+                title: 'Camera Access Confirmation',
+                subtitle: 'Text Message',
+                message: `Dear Madam / Sir,
+
+We have accessed total of __ cameras.
+
+Thank you
+iSurveillanz Team`,
+                type: 'text'
+            },
+            {
+                id: 3,
+                icon: 'fa-clock',
+                title: 'Shift & Break Timing',
+                subtitle: 'Text Message',
+                message: `Respected Madam / Sir,
+
+Please inform the complete details below:
+1) Shift Timing of the departments
+2) Lunch & Dinner time
+3) Tea time
+
+Thanks & Regards,
+iSurveillanz Team`,
+                type: 'text'
+            },
+            {
+                id: 4,
+                icon: 'fa-file-excel',
+                title: 'Restriction File Submission',
+                subtitle: 'Excel Attachment',
+                message: `Dear Madam / Sir,
+
+Please find attached excel file for your restriction for your plant / store / workshop / building.`,
+                type: 'file'
+            },
+            {
+                id: 5,
+                icon: 'fa-file-signature',
+                title: 'Service Package Confirmation',
+                subtitle: 'Text Message',
+                message: `Dear Madam / Sir,
+
+This is the service package proposed from your side for __ hours x __ days, from __ AM/PM to __ AM/PM each day (W/O Sunday).
+
+Kindly confirm.`,
+                type: 'text'
+            },
+            {
+                id: 6,
+                icon: 'fa-chart-line',
+                title: 'Report Analytics Link',
+                subtitle: 'Abnormal Incident',
+                message: `Dear Sir,
+
+We are pleased to inform you that we have created a 📈 Report Analytics Link.
+
+The Analytics Dashboard helps organizations analyze incident reports and camera activity through 📊 interactive charts and 📋 detailed data tables. It converts raw report data into visual insights, enabling ⚡ faster analysis and 🎯 better decision-making.
+
+⭐ Importance of Analytics
+
+✅ Better Decision-Making – Helps management make informed decisions using real data.
+
+📈 Identify Trends & Issues – Easily detect departments or cameras with higher incidents.
+
+⚙️ Improve Operational Efficiency – Supports better monitoring and accountability.
+
+⚡ Faster Analysis – Visual charts make it easier to understand large amounts of data quickly.
+
+🚀 Key Features
+
+📊 Interactive Charts – View department-wise and incident category reports visually.
+
+📋 Report Data Table – Access detailed report information in tabular form.
+
+📷 Camera Related Reports – Analyze incidents based on specific cameras.
+
+📅 Comparative Reports – Compare data for the last 3 months to identify trends.
+
+🔍 Advanced Filters – Filter data by NVR/DVR, Department, and Incident Date.
+
+🔄 Real-Time Updates – Incident data refreshes every 1–5 minutes with up to 6 months of historical data.
+
+⬇️ Download Option – Easily download charts and reports when needed.
+
+☁️ No Storage Requirement – Access analytics directly through a link without storing PDF files.`,
+                type: 'link'
+            }
+        ];
+
+        // DOM elements - initialized after definition
+        let rulesGrid = null;
+        let emptyState = null;
+        let searchInput = null;
+        let searchInputMobile = null;
+        let filterChips = null;
+        let toast = null;
+        let toastText = null;
+
+        // State
+        let currentFilter = 'all';
+        let searchQuery = '';
+
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            body.setAttribute('data-theme', newTheme);
+            icon.className = newTheme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Load saved theme
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            const icon = document.getElementById('theme-icon');
+            if (icon) {
+                icon.className = savedTheme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            }
+        }
+
+        // Render Grid
+        function renderGrid() {
+            if (!rulesGrid) return;
+
+            const filteredRules = rules.filter(rule => {
+                const matchesFilter = currentFilter === 'all' || rule.type === currentFilter;
+                const matchesSearch = searchQuery === '' || 
+                    rule.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    rule.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    rule.subtitle.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchesFilter && matchesSearch;
+            });
+
+            // Update count
+            const countEl = document.getElementById('rule-count');
+            if (countEl) {
+                countEl.textContent = filteredRules.length;
+            }
+
+            if (filteredRules.length === 0) {
+                rulesGrid.innerHTML = '';
+                if (emptyState) emptyState.classList.remove('hidden');
+                return;
+            }
+
+            if (emptyState) emptyState.classList.add('hidden');
+
+            rulesGrid.innerHTML = filteredRules.map((rule, index) => `
+                <div class="rule-card" data-rule-id="${rule.id}" style="transition-delay: ${index * 0.05}s;">
+                    <div class="p-6 relative">
+                        <span class="rule-number">0${rule.id}</span>
+                        <div class="flex items-start gap-4 mb-5">
+                            <div class="rule-icon">
+                                <i class="fa-solid ${rule.icon}"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="rule-title">${rule.title}</h3>
+                                <p class="rule-subtitle">${rule.subtitle}</p>
+                            </div>
+                        </div>
+                        <div class="rule-message mb-5">
+                            ${escapeHtml(rule.message)}
+                        </div>
+
+                        ${rule.id === 5 ? `
+                            <div style="
+                                margin-top:12px;
+                                padding:14px;
+                                border-radius:10px;
+                                background: rgba(245, 158, 11, 0.08);
+                                border:1px solid rgba(245, 158, 11, 0.3);
+                            ">
+                                <div style="font-weight:600; font-size:13px; margin-bottom:6px; color:#f59e0b;">
+                                    If client confirms:
+                                </div>
+
+                                <div style="font-size:13px; margin-bottom:10px;">
+                                    Thank you for your confirmation. We begin surveillance service immediately.
+                                </div>
+
+                                <button onclick="copyReply(this)" 
+                                    style="font-size:12px; color:#f59e0b; font-weight:600; background:none; border:none; cursor:pointer;">
+                                    📋 Copy Reply
+                                </button>
+                            </div>
+                        ` : ''}
+                        <div class="flex items-center justify-between gap-4">
+    
+                            <!-- LEFT -->
+                            <span class="text-xs font-medium px-3 py-1 rounded-full"
+                                  style="background: var(--accent-soft); color: var(--accent);">
+                                ${getTypeLabel(rule.type)}
+                            </span>
+
+                            <!-- RIGHT -->
+                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+
+                                ${rule.type === 'link' ? `
+                                    <div style="font-size:11px; color:var(--fg-muted); text-align:right;">
+                                        Analytics link format: (Link Reply)
+                                    </div>
+                                    <div style="font-size:11px; font-family:monospace; color:var(--accent);">
+                                        https://analytics.isurveillanz.cloud/analytic/XXXXXXXXXXXXXX
+                                    </div>
+                                ` : ''}
+
+                                <button class="copy-btn" onclick="copyMessage(${rule.id})">
+                                    <i class="fa-solid fa-copy"></i>
+                                    Copy Message
+                                </button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Trigger animations
+            requestAnimationFrame(() => {
+                document.querySelectorAll('.rule-card').forEach((card, i) => {
+                    setTimeout(() => {
+                        card.classList.add('visible');
+                    }, i * 50);
+                });
+            });
+        }
+
+        // Escape HTML for safe display
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Get type label
+        function getTypeLabel(type) {
+            const labels = {
+                photo: 'Photo Required',
+                text: 'Text Message',
+                file: 'File Attachment',
+                link: 'Analytics Link'
+            };
+            return labels[type] || type;
+        }
+
+        // Copy Message
+        function copyReply(btn) {
+            const text = "Thank you for your confirmation. We begin surveillance service immediately.";
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    const original = btn.innerHTML;
+                    btn.innerHTML = "✔ Copied!";
+                    btn.style.color = "#10b981";
+
+                    setTimeout(() => {
+                        btn.innerHTML = original;
+                        btn.style.color = "#f59e0b";
+                    }, 2000);
+                });
+            } else {
+                fallbackCopy(text);
+                showToast('Reply copied!');
+            }
+        }
+
+        // Fallback copy method
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            textarea.style.pointerEvents = 'none';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+            } catch (e) {
+                console.error('Copy failed:', e);
+            }
+            textarea.remove();
+        }
+
+        // Flash button on copy
+        function flashButton(id) {
+            const card = document.querySelector(`[data-rule-id="${id}"]`);
+            if (!card) return;
+            const btn = card.querySelector('.copy-btn');
+            if (!btn) return;
+
+            btn.classList.add('copied');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+
+            setTimeout(() => {
+                btn.classList.remove('copied');
+                btn.innerHTML = originalText;
+            }, 2000);
+        }
+
+        // Show Toast
+        function showToast(message) {
+            if (!toast || !toastText) return;
+            toastText.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // Handle Search
+        function handleSearch(e) {
+            searchQuery = e.target.value;
+            renderGrid();
+        }
+
+        // Handle Filter
+        function handleFilter(e) {
+            const chip = e.target.closest('.filter-chip');
+            if (!chip) return;
+
+            filterChips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+
+            currentFilter = chip.dataset.filter;
+            renderGrid();
+        }
+
+        // Initialize
+        function init() {
+            // Initialize DOM references
+            rulesGrid = document.getElementById('rules-grid');
+            emptyState = document.getElementById('empty-state');
+            searchInput = document.getElementById('search-input');
+            searchInputMobile = document.getElementById('search-input-mobile');
+            filterChips = document.querySelectorAll('.filter-chip');
+            toast = document.getElementById('toast');
+            toastText = document.getElementById('toast-text');
+
+            // Load theme
+            loadTheme();
+
+            // Render grid
+            renderGrid();
+
+            // Event listeners
+            if (searchInput) {
+                searchInput.addEventListener('input', handleSearch);
+            }
+            if (searchInputMobile) {
+                searchInputMobile.addEventListener('input', handleSearch);
+            }
+
+            const filtersContainer = document.getElementById('filters');
+            if (filtersContainer) {
+                filtersContainer.addEventListener('click', handleFilter);
+            }
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Ctrl/Cmd + K to focus search
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    if (searchInput) searchInput.focus();
+                }
+            });
+        }
+
+        // Run initialization when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
