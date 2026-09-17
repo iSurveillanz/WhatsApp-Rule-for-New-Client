@@ -244,6 +244,7 @@
         }
 
         .rule-message {
+            text-align: left;
             background: var(--bg-secondary);
             border-radius: 12px;
             padding: 20px;
@@ -251,6 +252,7 @@
             line-height: 1.8;
             white-space: pre-wrap;
             color: var(--fg);
+            text-align: left;
             border: 1px solid transparent;
             transition: border-color 0.3s ease;
             max-height: 300px;
@@ -344,6 +346,24 @@
             background: var(--accent-soft);
             border-color: var(--accent);
             color: var(--accent);
+        }
+
+        .excel-share-btn {
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            padding: 3px 0;
+            font: inherit;
+            cursor: pointer;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .excel-share-btn:hover {
+            opacity: 0.78;
+            transform: translateX(2px);
+            text-decoration: underline;
         }
 
         /* Scrollbar */
@@ -453,8 +473,7 @@
                 <button class="filter-chip active" data-filter="all">All Rules</button>
                 <button class="filter-chip" data-filter="photo">Photo Required</button>
                 <button class="filter-chip" data-filter="text">Text Message</button>
-                <button class="filter-chip" data-filter="file">File Attachment</button>
-                <button class="filter-chip" data-filter="link">Analytics Link</button>
+                <button class="filter-chip" data-filter="file">Excel Attachment Templates</button>
             </div>
         </div>
     </header>
@@ -469,7 +488,7 @@
             </div>
             <div class="flex items-center gap-6">
                 <div class="text-center">
-                    <div class="text-2xl font-bold" style="color: var(--accent);" id="rule-count">6</div>
+                    <div class="text-2xl font-bold" style="color: var(--accent);" id="rule-count">7</div>
                     <div class="text-xs" style="color: var(--fg-muted);">Total Rules</div>
                 </div>
                 <div class="text-center">
@@ -524,6 +543,18 @@
         // Rule data - initialized before any function calls
         const rules = [
             {
+                id: 8,
+                icon: 'fa-whatsapp',
+                title: 'WhatsApp Reporting Team Introduction',
+                subtitle: 'Text Message',
+                message: `Hello Madam/Sir,
+
+This is the WhatsApp Reporting Team from iSurveillanz.
+
+Thank you.`,
+                type: 'text'
+            },
+            {
                 id: 1,
                 icon: 'fa-camera',
                 title: 'Camera Access Confirmation',
@@ -564,7 +595,7 @@ iSurveillanz Team`,
                 id: 4,
                 icon: 'fa-file-excel',
                 title: 'Restriction File Submission',
-                subtitle: 'Excel Attachment',
+                subtitle: 'Excel Attachment Templates',
                 message: `Dear Madam / Sir,
 
 Please find attached excel file for your restriction for your plant / store / workshop / building.`,
@@ -583,44 +614,16 @@ Kindly confirm.`,
                 type: 'text'
             },
             {
-                id: 6,
-                icon: 'fa-chart-line',
-                title: 'Report Analytics Link',
-                subtitle: 'Abnormal Incident',
+                id: 7,
+                icon: 'fa-file-signature',
+                title: 'Service Package – Trial',
+                subtitle: 'Text Message',
                 message: `Dear Sir,
 
-We are pleased to inform you that we have created a 📈 Report Analytics Link.
+This is the proposed service package for __ hours per day, __ days a week (Monday to Saturday), with WhatsApp reporting from --:-- AM/PM to --:-- AM/PM.
 
-The Analytics Dashboard helps organizations analyze incident reports and camera activity through 📊 interactive charts and 📋 detailed data tables. It converts raw report data into visual insights, enabling ⚡ faster analysis and 🎯 better decision-making.
-
-⭐ Importance of Analytics
-
-✅ Better Decision-Making – Helps management make informed decisions using real data.
-
-📈 Identify Trends & Issues – Easily detect departments or cameras with higher incidents.
-
-⚙️ Improve Operational Efficiency – Supports better monitoring and accountability.
-
-⚡ Faster Analysis – Visual charts make it easier to understand large amounts of data quickly.
-
-🚀 Key Features
-
-📊 Interactive Charts – View department-wise and incident category reports visually.
-
-📋 Report Data Table – Access detailed report information in tabular form.
-
-📷 Camera Related Reports – Analyze incidents based on specific cameras.
-
-📅 Comparative Reports – Compare data for the last 3 months to identify trends.
-
-🔍 Advanced Filters – Filter data by NVR/DVR, Department, and Incident Date.
-
-🔄 Real-Time Updates – Incident data refreshes every 1–5 minutes with up to 6 months of historical data.
-
-⬇️ Download Option – Easily download charts and reports when needed.
-
-☁️ No Storage Requirement – Access analytics directly through a link without storing PDF files.`,
-                type: 'link'
+A __-day trial service will be provided.`,
+                type: 'text'
             }
         ];
 
@@ -689,7 +692,7 @@ The Analytics Dashboard helps organizations analyze incident reports and camera 
             rulesGrid.innerHTML = filteredRules.map((rule, index) => `
                 <div class="rule-card" data-rule-id="${rule.id}" style="transition-delay: ${index * 0.05}s;">
                     <div class="p-6 relative">
-                        <span class="rule-number">0${rule.id}</span>
+                        <span class="rule-number">0${index + 1}</span>
                         <div class="flex items-start gap-4 mb-5">
                             <div class="rule-icon">
                                 <i class="fa-solid ${rule.icon}"></i>
@@ -702,6 +705,46 @@ The Analytics Dashboard helps organizations analyze incident reports and camera 
                         <div class="rule-message mb-5">
                             ${escapeHtml(rule.message)}
                         </div>
+
+                        ${rule.id === 4 ? `
+                            <div style="
+                                margin-top:12px;
+                                padding:14px;
+                                border-radius:10px;
+                                background: var(--accent-soft);
+                                border:1px solid var(--card-border);
+                            ">
+                                <div style="font-weight:600; font-size:13px; margin-bottom:8px;">
+                                    📎 Excel Template Files
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:8px; font-size:13px;">
+                                    <button type="button" onclick="openRuleFolder()" class="excel-share-btn">
+                                        🏭 Activities For Factory Premises.xlsx
+                                    </button>
+                                    <button type="button" onclick="openRuleFolder()" class="excel-share-btn">
+                                        🏢 Activities For Building / Society premises.xlsx
+                                    </button>
+                                    <button type="button" onclick="openRuleFolder()" class="excel-share-btn">
+                                        🏪 Activities For Store premises.xlsx
+                                    </button>
+                                    <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--card-border);">
+                                        <a href="file://///desktop-r1/D/R1/New%20company%20for%20the%20rule"
+                                           target="_blank"
+                                           rel="noopener"
+                                           class="excel-share-btn"
+                                           style="display:block; text-decoration:none;">
+                                            📂 Open New Company Rule Folder
+                                        </a>
+                                        <button type="button" onclick="copyNetworkPath()" class="excel-share-btn" style="margin-top:4px;">
+                                            📋 Copy Network Folder Path
+                                        </button>
+                                        <div style="font-size:11px; color:var(--fg-muted); margin-top:3px;">
+                                            Windows network folder: \\desktop-r1\D\R1\New company for the rule
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
 
                         ${rule.id === 5 ? `
                             <div style="
@@ -802,6 +845,82 @@ The Analytics Dashboard helps organizations analyze incident reports and camera 
             } else {
                 fallbackCopy(text);
                 showToast('Reply copied!');
+            }
+        }
+
+        // Open the Windows network folder directly
+        function openRuleFolder() {
+            const folder = 'file://///desktop-r1/D/R1/New%20company%20for%20the%20rule';
+            window.location.href = folder;
+        }
+
+        // Copy Windows network folder path
+        function copyNetworkPath() {
+            const path = `\\\\desktop-r1\\D\\R1\\New company for the rule`;
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(path).then(() => {
+                    showToast('Network folder path copied!');
+                }).catch(() => {
+                    fallbackCopy(path);
+                    showToast('Network folder path copied!');
+                });
+            } else {
+                fallbackCopy(path);
+                showToast('Network folder path copied!');
+            }
+        }
+
+        // Share Excel template to WhatsApp
+        async function shareExcelTemplate(filePath, fileName) {
+            const message = `Dear Madam / Sir,
+
+Please find attached excel file for your restriction for your plant.`;
+
+            try {
+                const response = await fetch(filePath);
+                if (!response.ok) throw new Error('Excel file could not be loaded.');
+
+                const blob = await response.blob();
+                const file = new File([blob], fileName, {
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                });
+
+                // Supported browsers can pass the actual Excel file
+                // into the system share sheet, where WhatsApp can be selected.
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: fileName,
+                        text: message,
+                        files: [file]
+                    });
+                    showToast('Share sheet opened. Select WhatsApp.');
+                    return;
+                }
+
+                // Fallback: open WhatsApp with the message and download the file.
+                const waUrl = 'https://wa.me/?text=' + encodeURIComponent(message);
+                window.open(waUrl, '_blank');
+                const downloadLink = document.createElement('a');
+                downloadLink.href = filePath;
+                downloadLink.download = fileName;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                downloadLink.remove();
+                showToast('WhatsApp opened. Excel file downloaded for attachment.');
+            } catch (error) {
+                if (error && error.name === 'AbortError') return;
+
+                // Final fallback for local/offline HTML use.
+                const waUrl = 'https://wa.me/?text=' + encodeURIComponent(message);
+                window.open(waUrl, '_blank');
+                const downloadLink = document.createElement('a');
+                downloadLink.href = filePath;
+                downloadLink.download = fileName;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                downloadLink.remove();
+                showToast('WhatsApp opened. Please attach the Excel file.');
             }
         }
 
