@@ -488,7 +488,7 @@
             </div>
             <div class="flex items-center gap-6">
                 <div class="text-center">
-                    <div class="text-2xl font-bold" style="color: var(--accent);" id="rule-count">7</div>
+                    <div class="text-2xl font-bold" style="color: var(--accent);" id="rule-count">8</div>
                     <div class="text-xs" style="color: var(--fg-muted);">Total Rules</div>
                 </div>
                 <div class="text-center">
@@ -624,6 +624,34 @@ This is the proposed service package for __ hours per day, __ days a week (Monda
 
 A __-day trial service will be provided.`,
                 type: 'text'
+            },
+            {
+                id: 9,
+                icon: 'fa-file-pdf',
+                title: 'Incident Type Categories – For Your Reference',
+                subtitle: 'File Attachment',
+                message: `Dear Madam / Sir,
+
+📢 Incident Type Categories – For Your Reference
+
+For clear, specific, and easy-to-understand incident reporting, we follow a standardized system of 16 Incident Type Categories.
+
+These categories help ensure:
+
+✅ Clear incident descriptions
+✅ Easy analysis and reporting
+✅ Quick incident tracking
+✅ Accurate incident categorization
+
+📎 Kindly find the attached Incident Type Category list for your reference.
+
+We will also pin this list in the WhatsApp group for easy access whenever required.
+
+Thank you for your support and cooperation.
+
+Regards,
+iSurveillanz Team`,
+                type: 'file'
             }
         ];
 
@@ -741,6 +769,42 @@ A __-day trial service will be provided.`,
                                         <div style="font-size:11px; color:var(--fg-muted); margin-top:3px;">
                                             Windows network folder: \\desktop-r1\D\R1\New company for the rule
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${rule.id === 9 ? `
+                            <div style="
+                                margin-top:12px;
+                                padding:14px;
+                                border-radius:10px;
+                                background: var(--accent-soft);
+                                border:1px solid var(--card-border);
+                            ">
+                                <div style="font-weight:600; font-size:13px; margin-bottom:10px;">
+                                    📎 Template Files
+                                </div>
+                                <div style="display:flex; align-items:center; gap:12px; padding:10px; border-radius:8px; background:var(--card-bg); border:1px solid var(--card-border);">
+                                    <i class="fa-solid fa-file-pdf" style="font-size:24px; color:var(--danger);"></i>
+                                    <div style="min-width:0;">
+                                        <div style="font-weight:600; font-size:13px;">PDF Attachment</div>
+                                        <div style="font-size:12px; color:var(--fg-muted); overflow-wrap:anywhere;">
+                                            iSurveillanz_Incident_Type_Category_Library.pdf
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+                                    <a href="file://///desktop-r1/D/R1/New%20company%20for%20the%20rule"
+                                       target="_blank" rel="noopener" class="excel-share-btn"
+                                       style="display:block; text-decoration:none;">
+                                        📂 Open New Company Rule Folder
+                                    </a>
+                                    <button type="button" onclick="copyNetworkPath()" class="excel-share-btn">
+                                        📋 Copy Network Folder Path
+                                    </button>
+                                    <div style="font-size:11px; color:var(--fg-muted);">
+                                        Windows network folder: \\desktop-r1\D\R1\New company for the rule
                                     </div>
                                 </div>
                             </div>
